@@ -9,6 +9,24 @@ import ConnectedAccounts from "@/components/dashboard/ConnectedAccounts";
 import InvestmentGoals from "@/components/dashboard/InvestmentGoals";
 import { getCurrentUser } from "@/lib/auth";
 import { TrendingUp } from "lucide-react";
+import type { Portfolio, Account, Transaction, Goal } from "@shared/schema";
+
+// Dashboard API response types (with date strings from JSON)
+interface DashboardTransaction extends Omit<Transaction, 'date'> {
+  date: string;
+}
+
+interface DashboardGoal extends Omit<Goal, 'targetDate'> {
+  targetDate: string;
+}
+
+interface DashboardData {
+  portfolio: Portfolio | null;
+  accounts: Account[];
+  transactions: DashboardTransaction[];
+  goals: DashboardGoal[];
+  monthlyRoundups: string;
+}
 
 export default function Dashboard() {
   const { data: user } = useQuery({
@@ -16,9 +34,10 @@ export default function Dashboard() {
     queryFn: getCurrentUser,
   });
 
-  const { data: dashboardData, isLoading } = useQuery({
+  const { data: dashboardData, isLoading } = useQuery<DashboardData>({
     queryKey: ['/api/dashboard'],
     retry: false,
+    enabled: !!user,
   });
 
   if (isLoading) {
@@ -74,14 +93,14 @@ export default function Dashboard() {
           <div className="lg:col-span-2 space-y-8">
             <PortfolioChart />
             <AllocationChart data={dashboardData?.portfolio} />
-            <RecentTransactions transactions={dashboardData?.transactions} />
+            <RecentTransactions transactions={dashboardData?.transactions || []} />
           </div>
 
           {/* Right Column: Quick Actions and Goals */}
           <div className="space-y-8">
             <QuickActions />
-            <ConnectedAccounts accounts={dashboardData?.accounts} />
-            <InvestmentGoals goals={dashboardData?.goals} />
+            <ConnectedAccounts accounts={dashboardData?.accounts || []} />
+            <InvestmentGoals goals={dashboardData?.goals || []} />
             
             {/* Investment Tips */}
             <div className="bg-gradient-to-r from-success-50 to-primary-50 p-6 rounded-xl border border-success-100">

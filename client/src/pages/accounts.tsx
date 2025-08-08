@@ -5,11 +5,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Building, CreditCard, Plus } from "lucide-react";
 import { useState } from "react";
 import BankConnectionModal from "@/components/modals/BankConnectionModal";
+import type { Account } from "@shared/schema";
 
 export default function Accounts() {
   const [showBankModal, setShowBankModal] = useState(false);
 
-  const { data: accounts, isLoading } = useQuery({
+  const { data: accounts, isLoading } = useQuery<Account[]>({
     queryKey: ['/api/accounts'],
     retry: false,
   });
@@ -64,7 +65,7 @@ export default function Accounts() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {accounts?.map((account: any) => {
+          {(accounts || []).map((account) => {
             const IconComponent = getAccountIcon(account.accountType);
             const iconColor = getAccountColor(account.bankName);
 

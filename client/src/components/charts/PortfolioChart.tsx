@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Chart, registerables } from "chart.js";
+import type { PortfolioHistory } from "@shared/schema";
 
 Chart.register(...registerables);
 
@@ -8,13 +9,13 @@ export default function PortfolioChart() {
   const chartRef = useRef<HTMLCanvasElement>(null);
   const chartInstance = useRef<Chart | null>(null);
 
-  const { data: portfolioHistory } = useQuery({
+  const { data: portfolioHistory } = useQuery<PortfolioHistory[]>({
     queryKey: ['/api/portfolio/history/7'],
     retry: false,
   });
 
   useEffect(() => {
-    if (!chartRef.current || !portfolioHistory) return;
+    if (!chartRef.current || !portfolioHistory || !Array.isArray(portfolioHistory)) return;
 
     // Destroy existing chart
     if (chartInstance.current) {

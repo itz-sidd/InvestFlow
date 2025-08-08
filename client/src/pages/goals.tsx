@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Home, Car, Plane, Plus, Target } from "lucide-react";
+import type { Goal } from "@shared/schema";
 
 export default function Goals() {
-  const { data: goals, isLoading } = useQuery({
+  const { data: goals, isLoading } = useQuery<Goal[]>({
     queryKey: ['/api/goals'],
     retry: false,
   });
@@ -63,7 +64,7 @@ export default function Goals() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {goals?.map((goal: any) => {
+          {(goals || []).map((goal) => {
             const IconComponent = getGoalIcon(goal.icon);
             const iconColor = getGoalColor(goal.color);
             const current = parseFloat(goal.currentAmount);

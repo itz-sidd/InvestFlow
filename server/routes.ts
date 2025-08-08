@@ -219,8 +219,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         allocation: {}
       });
 
-      // Store user ID in session (mock authentication)
-      (req as any).session = { userId: user.id };
+      // Store user ID in session
+      (req as any).session.userId = user.id;
       
       res.json({ 
         id: user.id, 
@@ -243,8 +243,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(401).json({ message: "Invalid credentials" });
       }
 
-      // Store user ID in session (mock authentication)
-      (req as any).session = { userId: user.id };
+      // Store user ID in session
+      (req as any).session.userId = user.id;
       
       res.json({ 
         id: user.id, 
@@ -259,8 +259,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   app.post("/api/logout", (req, res) => {
-    (req as any).session = null;
-    res.json({ message: "Logged out successfully" });
+    if ((req as any).session) {
+      (req as any).session.destroy((err: any) => {
+        if (err) {
+          return res.status(500).json({ message: "Failed to logout" });
+        }
+        res.json({ message: "Logged out successfully" });
+      });
+    } else {
+      res.json({ message: "Logged out successfully" });
+    }
   });
 
   app.get("/api/me", async (req, res) => {
